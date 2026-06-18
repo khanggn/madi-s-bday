@@ -36,6 +36,27 @@ import homecafe from "./assets/singles/homecafe.svg";
 import figbuild from "./assets/singles/figbuild.svg";
 import kevinsbday from "./assets/singles/kevinsbday.svg";
 
+import lig1 from "./assets/quad/lig.svg";
+import lig2 from "./assets/quad/lig2.svg";
+import lig3 from "./assets/quad/lig3.svg";
+import lig4 from "./assets/quad/lig4.svg";
+
+import flower1 from "./assets/flowers/flower 1.svg";
+import flower2 from "./assets/flowers/flower 2.svg";
+import flower3 from "./assets/flowers/flower 3.svg";
+import flower4 from "./assets/flowers/flower 4.svg";
+import flower5 from "./assets/flowers/flower 5.svg";
+import flower6 from "./assets/flowers/flower 6.svg";
+import scrapbookBg from "./assets/scrapbookbg.jpg";
+import ellipse from "./assets/Ellipse 3.svg";
+import rockclimbing from "./assets/rockclimbing.svg";
+import funnyImg from "./assets/funny.svg";
+import envelope from "./assets/envelope.svg";
+import lostInDreams from "./assets/lostindreams.jpg";
+import spaImg from "./assets/spa.webp";
+
+const FLOWERS = [flower1, flower2, flower3, flower4, flower5, flower6];
+
 const SINGLES = [
   { label: "manu's bday", image: manubday },
   { label: "drugs?", image: drugs },
@@ -202,6 +223,16 @@ function LandingPage({ onEnter, isExiting }) {
                 />
               </svg>
             </div>
+            <p style={{
+              fontFamily: "'DM Sans', sans-serif",
+              color: "rgba(255,255,255,0.6)",
+              fontSize: "clamp(0.65rem, 1.2vw, 0.8rem)",
+              marginTop: "1.5rem",
+              letterSpacing: "0.05em",
+              textShadow: "0 1px 4px rgba(0,0,0,0.2)",
+            }}>
+              have volume on for a better experience
+            </p>
           </div>
       </div>
     </div>
@@ -300,8 +331,8 @@ function MessageButterfly({ message, index, position, side, onOpenChange }) {
             zIndex: 2,
             backgroundColor: "#FFFFFF",
             color: "#2a2a2a",
-            fontFamily: "'DM Sans', sans-serif",
-            fontSize: "1.05rem",
+            fontFamily: "'Gaegu', cursive",
+            fontSize: "1.15rem",
             lineHeight: 1.6,
             padding: "1.4rem 1.5rem",
             borderRadius: "14px",
@@ -457,21 +488,23 @@ function SinglePhoto({ item }) {
   );
 }
 
-function Sparkle({ size = 16, top, left, right, bottom, delay = 0, color = "#fff" }) {
+function Sparkle({ size = 16, top, left, right, bottom, delay = 0, color = "#fff", rotate = 0 }) {
   return (
-    <svg
-      width={size} height={size} viewBox="0 0 24 24"
-      style={{
-        position: "absolute", top, left, right, bottom,
-        opacity: 0,
-        animation: `fadeInLine 0.8s ease forwards ${delay}s`,
-      }}
-    >
-      <path
-        d="M12 0 L13.5 9.5 L24 12 L13.5 14.5 L12 24 L10.5 14.5 L0 12 L10.5 9.5 Z"
-        fill={color}
-      />
-    </svg>
+    <div style={{
+      position: "absolute", top, left, right, bottom,
+      opacity: 0,
+      animation: `fadeIn 0.8s ease forwards ${delay}s`,
+    }}>
+      <svg
+        width={size} height={size} viewBox="0 0 24 24"
+        style={{ transform: `rotate(${rotate}deg)` }}
+      >
+        <path
+          d="M12 0 L13.5 9.5 L24 12 L13.5 14.5 L12 24 L10.5 14.5 L0 12 L10.5 9.5 Z"
+          fill={color}
+        />
+      </svg>
+    </div>
   );
 }
 
@@ -487,24 +520,55 @@ function Dot({ size = 5, top, left, right, bottom, delay = 0, color = "rgba(255,
   );
 }
 
-function Polaroid({ src, caption, rotate, top, left, delay = 0, zIndex = 1 }) {
+function Polaroid({ src, altSrc, caption, rotate, top, left, delay = 0, zIndex = 1 }) {
+  const [hovered, setHovered] = useState(false);
+  const [flashing, setFlashing] = useState(false);
+
+  useEffect(() => {
+    if (!altSrc) return;
+    const timer = setTimeout(() => {
+      setFlashing(true);
+      setTimeout(() => setFlashing(false), 800);
+    }, 3000);
+    return () => clearTimeout(timer);
+  }, [altSrc]);
+
+  const showAlt = altSrc && (hovered || flashing);
+
   return (
-    <div style={{
-      position: "absolute", top, left,
-      transform: `rotate(${rotate}deg)`,
-      background: "#fff",
-      padding: "10px 10px 40px 10px",
-      boxShadow: "0 8px 30px rgba(0,0,0,0.4)",
-      zIndex,
-      opacity: 0,
-      animation: `fadeInLine 1s ease forwards ${delay}s`,
-    }}>
-      <img src={src} alt={caption} style={{
-        width: "clamp(180px, 22vw, 280px)",
-        height: "clamp(220px, 28vw, 340px)",
-        objectFit: "cover",
-        display: "block",
-      }} />
+    <div
+      onMouseEnter={() => altSrc && setHovered(true)}
+      onMouseLeave={() => altSrc && setHovered(false)}
+      style={{
+        position: "absolute", top, left,
+        transform: `rotate(${rotate}deg)`,
+        background: "#fff",
+        padding: "10px 10px 40px 10px",
+        boxShadow: "0 8px 30px rgba(0,0,0,0.4)",
+        zIndex,
+        opacity: 0,
+        animation: `fadeInLine 1s ease forwards ${delay}s`,
+        cursor: altSrc ? "pointer" : "default",
+      }}
+    >
+      <div style={{ position: "relative", width: "clamp(180px, 22vw, 280px)", height: "clamp(220px, 28vw, 340px)" }}>
+        <img src={src} alt={caption} style={{
+          position: "absolute", inset: 0,
+          width: "100%", height: "100%",
+          objectFit: "cover",
+          display: "block",
+          transition: "opacity 0.5s ease",
+          opacity: showAlt ? 0 : 1,
+        }} />
+        {altSrc && <img src={altSrc} alt={caption} style={{
+          position: "absolute", inset: 0,
+          width: "100%", height: "100%",
+          objectFit: "cover",
+          display: "block",
+          transition: "opacity 0.5s ease",
+          opacity: showAlt ? 1 : 0,
+        }} />}
+      </div>
       <p style={{
         fontFamily: "'Gamja Flower', cursive",
         fontSize: "clamp(1rem, 1.8vw, 1.4rem)",
@@ -522,6 +586,17 @@ function Section2() {
   const ref = useRef(null);
   const [visible, setVisible] = useState(false);
   const [uncHovered, setUncHovered] = useState(false);
+  const [snoopyHovered, setSnoopyHovered] = useState(false);
+  const [snoopyFlashing, setSnoopyFlashing] = useState(false);
+
+  useEffect(() => {
+    if (!visible) return;
+    const timer = setTimeout(() => {
+      setSnoopyFlashing(true);
+      setTimeout(() => setSnoopyFlashing(false), 800);
+    }, 3000);
+    return () => clearTimeout(timer);
+  }, [visible]);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -539,7 +614,7 @@ function Section2() {
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
-      background: "#c9a8a0",
+      background: "linear-gradient(to bottom, #F4BCBC 0%, #FEDFDA 46%, #B8BB88 100%)",
       padding: "4rem 6%",
       position: "relative",
       zIndex: 1,
@@ -574,7 +649,7 @@ function Section2() {
                 transition: "opacity 0.3s ease",
                 cursor: "default",
               }}
-            >unc</span>
+            >{uncHovered ? "so young!" : "unc"}</span>
           </h2>
           <p style={{
             fontFamily: "'Playfair Display', serif",
@@ -587,23 +662,349 @@ function Section2() {
             transform: visible ? "translateY(0)" : "translateY(20px)",
             transition: "opacity 0.8s ease 0.4s, transform 0.8s ease 0.4s",
           }}>
-            Let's take a scroll down<br />memory lane and hear<br />from your friends!
+            Let's take a scroll down<br /><em>memory lane</em> and hear<br />from your friends!
           </p>
         </div>
-        <img
-          src={snoopyCake}
-          alt="Snoopy with cake"
+        <div
+          onMouseEnter={() => setSnoopyHovered(true)}
+          onMouseLeave={() => setSnoopyHovered(false)}
           style={{
+            position: "relative",
             width: "clamp(180px, 25vw, 320px)",
-            height: "auto",
-            borderRadius: "16px",
             flexShrink: 0,
+            cursor: "pointer",
             opacity: visible ? 1 : 0,
             transform: visible ? "translateX(0)" : "translateX(30px)",
             transition: "opacity 0.8s ease 0.6s, transform 0.8s ease 0.6s",
           }}
-        />
+        >
+          <img src={snoopyCake} alt="Snoopy with cake" style={{
+            width: "100%", height: "auto", borderRadius: "16px",
+            transition: "opacity 0.4s ease",
+            opacity: (snoopyHovered || snoopyFlashing) ? 0 : 1,
+          }} />
+          <img src={funnyImg} alt="" style={{
+            position: "absolute", inset: 0,
+            width: "100%", height: "100%",
+            objectFit: "cover", borderRadius: "16px",
+            transition: "opacity 0.4s ease",
+            opacity: (snoopyHovered || snoopyFlashing) ? 1 : 0,
+          }} />
+        </div>
       </div>
+
+      <Sparkle size={32} top="12%" right="8%" delay={0.3} color="#fff" rotate={15} />
+      <Sparkle size={28} top="25%" left="5%" delay={0.5} color="#fff" rotate={-30} />
+      <Sparkle size={38} bottom="18%" right="12%" delay={0.7} color="#fff" rotate={45} />
+      <Sparkle size={24} top="15%" right="35%" delay={0.9} color="#fff" rotate={-12} />
+      <Sparkle size={30} bottom="30%" left="10%" delay={1.1} color="#fff" rotate={60} />
+
+      <Dot size={8} top="10%" left="15%" delay={0.4} color="#fff" />
+      <Dot size={6} top="35%" right="6%" delay={0.6} color="#fff" />
+      <Dot size={10} bottom="12%" left="25%" delay={0.8} color="#fff" />
+      <Dot size={5} bottom="25%" right="20%" delay={1.0} color="#fff" />
+      <Dot size={7} top="50%" left="3%" delay={1.2} color="#fff" />
+
+      <img src={ellipse} alt="" style={{
+        position: "absolute",
+        width: "clamp(350px, 40vw, 550px)",
+        height: "auto",
+        left: "-20%",
+        top: "50%",
+        opacity: 0.4,
+        pointerEvents: "none",
+        animation: "fadeIn 1s ease forwards 0.6s",
+      }} />
+      <img src={ellipse} alt="" style={{
+        position: "absolute",
+        width: "clamp(350px, 40vw, 550px)",
+        height: "auto",
+        left: "-17%",
+        top: "53%",
+        opacity: 0.4,
+        pointerEvents: "none",
+        animation: "fadeIn 1s ease forwards 0.8s",
+      }} />
+    </section>
+  );
+}
+
+const QUADS = [
+  { label: "ligma cookie", images: [lig1, lig2, lig3, lig4] },
+];
+
+const ALL_MEMORIES = [
+  ...DOUBLES.map((pair) => ({ images: pair.images, label: pair.label })),
+  ...SINGLES.map((item) => ({ images: [item.image], label: item.label })),
+  ...QUADS.map((q) => ({ images: q.images, label: q.label })),
+];
+
+function MemoryLane({ containerRef }) {
+  const sectionRef = useRef(null);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [displayIndex, setDisplayIndex] = useState(0);
+  const [fade, setFade] = useState(true);
+  const [imagesLoaded, setImagesLoaded] = useState(false);
+
+  useEffect(() => {
+    const allSrcs = ALL_MEMORIES.flatMap((m) => m.images);
+    let loaded = 0;
+    allSrcs.forEach((src) => {
+      const img = new Image();
+      img.onload = img.onerror = () => {
+        loaded++;
+        if (loaded >= allSrcs.length) setImagesLoaded(true);
+      };
+      img.src = src;
+    });
+  }, []);
+
+  useEffect(() => {
+    if (currentIndex !== displayIndex) {
+      setFade(false);
+      const timer = setTimeout(() => {
+        setDisplayIndex(currentIndex);
+      }, 300);
+      return () => clearTimeout(timer);
+    }
+  }, [currentIndex, displayIndex]);
+
+  useEffect(() => {
+    // content swapped while hidden, now fade in on next frame
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        setFade(true);
+      });
+    });
+  }, [displayIndex]);
+
+  const [direction, setDirection] = useState(1); // 1 = forward, -1 = backward
+  const currentIndexRef = useRef(0);
+  const scrollAccum = useRef(0);
+  const isTransitioning = useRef(false);
+  const SCROLL_THRESHOLD = 500;
+  const COOLDOWN_MS = 650;
+
+  useEffect(() => {
+    currentIndexRef.current = currentIndex;
+  }, [currentIndex]);
+
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    const handleWheel = (e) => {
+      if (!sectionRef.current) return;
+      const rect = sectionRef.current.getBoundingClientRect();
+      const inView = rect.top <= 5 && rect.bottom >= window.innerHeight - 5;
+
+      if (!inView) return;
+
+      const atEnd = currentIndexRef.current >= ALL_MEMORIES.length - 1;
+      const atStart = currentIndexRef.current <= 0;
+
+      if ((e.deltaY > 0 && !atEnd) || (e.deltaY < 0 && !atStart)) {
+        e.preventDefault();
+        if (isTransitioning.current) return;
+        scrollAccum.current += e.deltaY;
+        if (Math.abs(scrollAccum.current) >= SCROLL_THRESHOLD) {
+          const dir = scrollAccum.current > 0 ? 1 : -1;
+          scrollAccum.current = 0;
+          isTransitioning.current = true;
+          setDirection(dir);
+          setCurrentIndex((prev) =>
+            Math.max(0, Math.min(prev + dir, ALL_MEMORIES.length - 1))
+          );
+          setTimeout(() => { isTransitioning.current = false; }, COOLDOWN_MS);
+        }
+      }
+    };
+
+    const handleScroll = () => {
+      if (!sectionRef.current) return;
+      const idx = currentIndexRef.current;
+      if (idx < ALL_MEMORIES.length - 1) {
+        const rect = sectionRef.current.getBoundingClientRect();
+        if (rect.top < 0) {
+          sectionRef.current.scrollIntoView({ behavior: "instant" });
+        }
+      }
+    };
+
+    container.addEventListener("wheel", handleWheel, { passive: false });
+    container.addEventListener("scroll", handleScroll);
+    return () => {
+      container.removeEventListener("wheel", handleWheel);
+      container.removeEventListener("scroll", handleScroll);
+    };
+  }, [containerRef]);
+
+  const memory = ALL_MEMORIES[displayIndex];
+
+  return (
+    <section
+      ref={sectionRef}
+      style={{
+        width: "100%",
+        height: "100vh",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        backgroundImage: `url(${scrapbookBg})`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        position: "relative",
+        overflow: "hidden",
+      }}
+    >
+      <div style={{
+        position: "absolute",
+        inset: 0,
+        background: "rgba(255,255,255,0.35)",
+        zIndex: 0,
+      }} />
+      <h2 style={{
+        fontFamily: "'Playfair Display', serif",
+        fontSize: "clamp(2rem, 5vw, 3.5rem)",
+        fontWeight: 700,
+        color: "#5a7a5a",
+        marginBottom: "2.5rem",
+        position: "absolute",
+        top: "3rem",
+        zIndex: 1,
+      }}>
+        memory lane
+      </h2>
+
+      {currentIndex < ALL_MEMORIES.length - 1 && (
+        <p style={{
+          position: "absolute",
+          top: "8rem",
+          fontFamily: "'Gaegu', cursive",
+          color: "#4a6a4a",
+          fontSize: "0.95rem",
+          zIndex: 1,
+          animation: "fadeIn 1s ease infinite alternate",
+        }}>
+          scroll for more ↓
+        </p>
+      )}
+
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          transition: "opacity 0.3s ease",
+          opacity: imagesLoaded && fade ? 1 : 0,
+          zIndex: 1,
+        }}
+      >
+        {memory.images.length === 4 ? (() => {
+          const seed = displayIndex * 7;
+          const flowerSrc = FLOWERS[seed % FLOWERS.length];
+          const corners = [
+            { top: "-40px", left: "-35px", rotate: "-23deg" },
+            { top: "-40px", right: "-35px", rotate: "23deg" },
+            { bottom: "-5px", right: "-35px", rotate: "23deg" },
+            { bottom: "-5px", left: "-35px", rotate: "-23deg" },
+          ];
+          const corner = corners[seed % corners.length];
+          return (
+            <div style={{
+              background: "#fff",
+              padding: "12px 12px 50px 12px",
+              boxShadow: "0 8px 30px rgba(0,0,0,0.3)",
+              position: "relative",
+            }}>
+              <img src={flowerSrc} alt="" style={{
+                position: "absolute",
+                width: "100px",
+                height: "100px",
+                transform: `rotate(${corner.rotate})`,
+                zIndex: 2,
+                pointerEvents: "none",
+                ...corner,
+              }} />
+              <div style={{
+                display: "grid",
+                gridTemplateColumns: "1fr 1fr",
+                gap: "6px",
+              }}>
+                {memory.images.map((src, i) => (
+                  <img key={i} src={src} alt="" style={{
+                    width: "min(160px, 20vw)",
+                    height: "min(160px, 20vh)",
+                    objectFit: "cover",
+                    display: "block",
+                  }} />
+                ))}
+              </div>
+            </div>
+          );
+        })() : (
+        <div style={{ display: "flex", gap: "2rem", alignItems: "center" }}>
+          {memory.images.map((src, i) => {
+            const seed = displayIndex * 7 + i * 13;
+            const flowerSrc = FLOWERS[seed % FLOWERS.length];
+            const corners = [
+              { top: "-40px", left: "-35px", rotate: "-23deg" },
+              { top: "-40px", right: "-35px", rotate: "23deg" },
+              { bottom: "-5px", right: "-35px", rotate: "23deg" },
+              { bottom: "-5px", left: "-35px", rotate: "-23deg" },
+            ];
+            const corner = corners[(seed + i * 3) % corners.length];
+            const showFlower = memory.images.length === 1 || i === 0;
+            return (
+            <div key={i} style={{
+              background: "#fff",
+              padding: "12px 12px 50px 12px",
+              boxShadow: "0 8px 30px rgba(0,0,0,0.3)",
+              position: "relative",
+            }}>
+              {showFlower && <img src={flowerSrc} alt="" style={{
+                position: "absolute",
+                width: "100px",
+                height: "100px",
+                transform: `rotate(${corner.rotate})`,
+                zIndex: 2,
+                pointerEvents: "none",
+                ...corner,
+              }} />}
+              <img src={src} alt="" style={{
+                maxHeight: memory.images.length > 1 ? "min(250px, 30vh)" : "min(280px, 35vh)",
+                maxWidth: memory.images.length > 1 ? "min(220px, 30vw)" : "min(280px, 35vw)",
+                display: "block",
+              }} />
+            </div>
+            );
+          })}
+        </div>
+        )}
+        <p style={{
+          fontFamily: "'Gamja Flower', cursive",
+          color: "#5a7a5a",
+          fontSize: "clamp(1.1rem, 2.5vw, 1.4rem)",
+          letterSpacing: "0.02em",
+          textAlign: "center",
+          marginTop: "2.5rem",
+        }}>
+          {memory.label}
+        </p>
+      </div>
+
+      <p style={{
+        position: "absolute",
+        bottom: "2rem",
+        fontFamily: "'DM Sans', sans-serif",
+        color: "rgba(90,122,90,0.6)",
+        fontSize: "0.85rem",
+        zIndex: 1,
+      }}>
+        {displayIndex + 1} / {ALL_MEMORIES.length}
+      </p>
+
     </section>
   );
 }
@@ -611,6 +1012,8 @@ function Section2() {
 function MainPage() {
   const [revealCount, setRevealCount] = useState(1);
   const [openIndex, setOpenIndex] = useState(null);
+  const [envelopeOpen, setEnvelopeOpen] = useState(false);
+  const [envelopeShaking, setEnvelopeShaking] = useState(false);
   const sectionRef = useRef(null);
   const containerRef = useRef(null);
   const revealCountRef = useRef(0);
@@ -693,6 +1096,7 @@ function MainPage() {
         />
         <Polaroid
           src="/photos/photo2.svg"
+          altSrc={rockclimbing}
           caption="ur so cool"
           rotate={4}
           top="28%"
@@ -768,6 +1172,17 @@ function MainPage() {
         <Dot size={4} top="45%" right="30%" delay={2.3} />
         <Dot size={3} top="80%" right="25%" delay={2.5} />
         <Dot size={5} top="12%" left="32%" delay={1.8} />
+
+        <img src={ellipse} alt="" style={{
+          position: "absolute",
+          width: "clamp(400px, 45vw, 650px)",
+          height: "auto",
+          right: "25%",
+          bottom: "-35%",
+          opacity: 0,
+          animation: "fadeIn 1.2s ease forwards 1.4s",
+          pointerEvents: "none",
+        }} />
       </section>
 
       {/* Section 2 — Birthday message with Snoopy */}
@@ -863,34 +1278,7 @@ function MainPage() {
         })}
       </section>
 
-      {/* Section 4 — Doubles gallery */}
-      <section style={{
-        width: "100%",
-        minHeight: "100vh",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        background: "#618764",
-        padding: "4rem 2rem",
-      }}>
-        <h2 style={{
-          fontFamily: "'Playfair Display', serif",
-          fontSize: "clamp(2rem, 5vw, 3.5rem)",
-          fontWeight: 700,
-          color: "#fff",
-          marginBottom: "3rem",
-        }}>
-          some of my fav memories
-        </h2>
-        {DOUBLES.map((pair, i) => (
-          <DoublePair key={i} pair={pair} />
-        ))}
-        {SINGLES.map((item, i) => (
-          <SinglePhoto key={i} item={item} />
-        ))}
-      </section>
-
-      {/* Section 5 — Placeholder */}
+      {/* Section 4 — From Spwicee */}
       <section style={{
         width: "100%",
         minHeight: "100vh",
@@ -900,24 +1288,123 @@ function MainPage() {
         justifyContent: "center",
         background: "#f5ede4",
         padding: "2rem",
+        position: "relative",
       }}>
         <h2 style={{
           fontFamily: "'Playfair Display', serif",
           fontSize: "clamp(2rem, 5vw, 3.5rem)",
           fontWeight: 700,
           color: "#2a2a2a",
+          position: "absolute",
+          top: "3rem",
         }}>
-          Section 5
+          a gift
         </h2>
-        <p style={{
-          fontFamily: "'DM Sans', sans-serif",
-          color: "#5a7a5a",
-          fontSize: "1rem",
-          marginTop: "0.5rem",
-        }}>
-          placeholder
-        </p>
+
+        {!envelopeOpen && (
+          <>
+            <div
+              onClick={() => {
+                setEnvelopeShaking(true);
+                setTimeout(() => {
+                  setEnvelopeShaking(false);
+                  setEnvelopeOpen(true);
+                }, 600);
+              }}
+              style={{
+                width: "clamp(200px, 30vw, 350px)",
+                marginTop: "0",
+                overflow: "hidden",
+                cursor: "pointer",
+                animation: envelopeShaking ? "envelopeShake 0.6s ease" : "none",
+              }}
+            >
+              <img src={envelope} alt="envelope" style={{
+                width: "140%",
+                height: "auto",
+                display: "block",
+                margin: "-25% 0 -15% -25%",
+              }} />
+            </div>
+            <p style={{
+              fontFamily: "'Gaegu', cursive",
+              color: "#5a7a5a",
+              fontSize: "1.2rem",
+              marginTop: "-0.5rem",
+            }}>
+              click me!
+            </p>
+          </>
+        )}
+
+        {envelopeOpen && (
+          <div style={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            animation: "memoryFade 0.8s ease both",
+            marginTop: "2rem",
+          }}>
+            <div style={{
+              display: "flex",
+              gap: "2rem",
+              alignItems: "center",
+              justifyContent: "center",
+              flexWrap: "wrap",
+            }}>
+              <img src={lostInDreams} alt="Lost in Dreams" style={{
+                width: "min(280px, 35vw)",
+                height: "min(300px, 35vh)",
+                objectFit: "cover",
+                display: "block",
+                borderRadius: "8px",
+                boxShadow: "0 8px 30px rgba(0,0,0,0.15)",
+              }} />
+              <img src={spaImg} alt="Spa" style={{
+                width: "min(280px, 35vw)",
+                height: "min(300px, 35vh)",
+                objectFit: "cover",
+                display: "block",
+                borderRadius: "8px",
+                boxShadow: "0 8px 30px rgba(0,0,0,0.15)",
+              }} />
+            </div>
+            <p style={{
+              fontFamily: "'Gaegu', cursive",
+              color: "#5a7a5a",
+              fontSize: "clamp(1.2rem, 2.5vw, 1.6rem)",
+              textAlign: "center",
+              marginTop: "1.5rem",
+              lineHeight: 1.6,
+            }}>
+              lost in dreams ticket and $30 for self care &lt;3<br />you deserve it<br />from spwicee
+            </p>
+          </div>
+        )}
+
+        <Sparkle size={30} top="8%" left="6%" delay={0.2} color="#5a7a5a" rotate={20} />
+        <Sparkle size={22} top="15%" right="10%" delay={0.5} color="#c9a8a0" rotate={-15} />
+        <Sparkle size={26} bottom="20%" left="12%" delay={0.8} color="#5a7a5a" rotate={35} />
+        <Sparkle size={18} bottom="12%" right="8%" delay={1.0} color="#c9a8a0" rotate={-25} />
+        <Sparkle size={24} top="40%" right="5%" delay={0.6} color="#5a7a5a" rotate={10} />
+        <Sparkle size={20} bottom="35%" left="4%" delay={1.2} color="#c9a8a0" rotate={45} />
+
+        <Dot size={8} top="12%" left="20%" delay={0.3} color="#5a7a5a" />
+        <Dot size={6} top="22%" right="15%" delay={0.7} color="#c9a8a0" />
+        <Dot size={10} bottom="18%" right="22%" delay={0.9} color="#5a7a5a" />
+        <Dot size={7} bottom="28%" left="18%" delay={1.1} color="#c9a8a0" />
+        <Dot size={5} top="50%" left="8%" delay={0.4} color="#5a7a5a" />
+
+        <img src={FLOWERS[0]} alt="" style={{ position: "absolute", top: "10%", right: "3%", width: "80px", opacity: 0, animation: "fadeIn 0.8s ease forwards 0.4s", transform: "rotate(15deg)" }} />
+        <img src={FLOWERS[2]} alt="" style={{ position: "absolute", bottom: "8%", left: "5%", width: "70px", opacity: 0, animation: "fadeIn 0.8s ease forwards 0.8s", transform: "rotate(-20deg)" }} />
+        <img src={FLOWERS[4]} alt="" style={{ position: "absolute", top: "5%", left: "3%", width: "60px", opacity: 0, animation: "fadeIn 0.8s ease forwards 0.6s", transform: "rotate(30deg)" }} />
+        <img src={FLOWERS[1]} alt="" style={{ position: "absolute", bottom: "10%", right: "6%", width: "75px", opacity: 0, animation: "fadeIn 0.8s ease forwards 1.0s", transform: "rotate(-10deg)" }} />
+        <img src={FLOWERS[3]} alt="" style={{ position: "absolute", top: "55%", right: "12%", width: "50px", opacity: 0, animation: "fadeIn 0.8s ease forwards 1.2s", transform: "rotate(25deg)" }} />
+        <img src={FLOWERS[5]} alt="" style={{ position: "absolute", bottom: "40%", left: "2%", width: "55px", opacity: 0, animation: "fadeIn 0.8s ease forwards 0.9s", transform: "rotate(-35deg)" }} />
       </section>
+
+      {/* Section 5 — Memory lane */}
+      <MemoryLane containerRef={containerRef} />
     </div>
   );
 }
@@ -938,7 +1425,7 @@ export default function App() {
   return (
     <>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Gamja+Flower&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Gaegu&family=Gamja+Flower&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap');
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         @keyframes fadeInLine {
@@ -948,6 +1435,27 @@ export default function App() {
         @keyframes fadeIn {
           from { opacity: 0; }
           to   { opacity: 1; }
+        }
+        @keyframes memorySlideIn {
+          from { opacity: 0; transform: translateY(40px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes memorySlideInReverse {
+          from { opacity: 0; transform: translateY(-40px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes memoryFade {
+          from { opacity: 0; }
+          to   { opacity: 1; }
+        }
+        @keyframes envelopeShake {
+          0%, 100% { transform: rotate(0deg); }
+          15% { transform: rotate(-5deg); }
+          30% { transform: rotate(5deg); }
+          45% { transform: rotate(-4deg); }
+          60% { transform: rotate(4deg); }
+          75% { transform: rotate(-2deg); }
+          90% { transform: rotate(2deg); }
         }
         button:focus-visible { outline: 2px solid #5a7a5a; outline-offset: 3px; }
         .message-bubble { overflow-y: auto; scrollbar-width: thin; scrollbar-color: #bbb transparent; }
