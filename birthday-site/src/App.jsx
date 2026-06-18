@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import bgImage from "./assets/landing-bg.jpg";
 import snoopyGif from "./assets/snoopy-btn.gif";
+import messages from "../../assets/messages.json";
 
 function LandingPage({ onEnter, isExiting }) {
   const [hovered, setHovered] = useState(false);
@@ -147,6 +148,113 @@ function LandingPage({ onEnter, isExiting }) {
   );
 }
 
+const DOT_COLORS = ["#F9C74F", "#F28482", "#90BE6D"];
+
+function MessageDot({ message, index }) {
+  const [hovered, setHovered] = useState(false);
+  const [canScroll, setCanScroll] = useState(false);
+  const bubbleRef = useRef(null);
+  const color = DOT_COLORS[index % DOT_COLORS.length];
+
+  useEffect(() => {
+    if (hovered && bubbleRef.current) {
+      const el = bubbleRef.current;
+      setCanScroll(el.scrollHeight > el.clientHeight);
+    }
+  }, [hovered]);
+
+  return (
+    <div
+      style={{ position: "relative", display: "inline-block" }}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+    >
+      <div
+        style={{
+          width: "clamp(36px, 5vw, 52px)",
+          height: "clamp(36px, 5vw, 52px)",
+          borderRadius: "50%",
+          backgroundColor: color,
+          cursor: "pointer",
+          transition: "transform 0.2s ease, box-shadow 0.2s ease",
+          transform: hovered ? "scale(1.25)" : "scale(1)",
+          boxShadow: hovered
+            ? `0 0 16px ${color}88`
+            : `0 2px 6px rgba(0,0,0,0.2)`,
+        }}
+      />
+
+      {hovered && (
+        <div style={{
+          position: "absolute",
+          bottom: "100%",
+          left: "50%",
+          transform: "translateX(-50%)",
+          paddingBottom: "12px",
+          zIndex: 100,
+        }}>
+        <div ref={bubbleRef} className="message-bubble" style={{
+          backgroundColor: "#FFFFFF",
+          color: "#2a2a2a",
+          fontFamily: "'DM Sans', sans-serif",
+          fontSize: "1.05rem",
+          lineHeight: 1.6,
+          padding: "1.4rem 1.5rem",
+          borderRadius: "14px",
+          boxShadow: "0 4px 20px rgba(0,0,0,0.15)",
+          width: "max(300px, min(400px, 80vw))",
+          maxHeight: "280px",
+          overflowY: "auto",
+          whiteSpace: "pre-wrap",
+          position: "relative",
+        }}>
+          <p style={{
+            fontFamily: "'Playfair Display', serif",
+            fontWeight: 700,
+            fontSize: "1.15rem",
+            color: "#5a7a5a",
+            marginBottom: "0.5rem",
+          }}>
+            {message.name}
+          </p>
+          <p style={{ margin: 0 }}>{message.message}</p>
+        </div>
+        {canScroll && (
+          <div style={{
+            position: "absolute",
+            bottom: "22px",
+            left: "50%",
+            transform: "translateX(-50%)",
+            display: "flex",
+            alignItems: "center",
+            gap: "4px",
+            backgroundColor: "rgba(90,122,90,0.85)",
+            color: "#fff",
+            fontFamily: "'DM Sans', sans-serif",
+            fontSize: "0.75rem",
+            padding: "3px 10px",
+            borderRadius: "10px",
+          }}>
+            <span>scroll</span>
+            <span style={{ fontSize: "0.85rem" }}>↓</span>
+          </div>
+        )}
+        <div style={{
+          position: "absolute",
+          bottom: "6px",
+          left: "50%",
+          transform: "translateX(-50%) rotate(45deg)",
+          width: "12px",
+          height: "12px",
+          backgroundColor: "#FFFFFF",
+          boxShadow: "2px 2px 4px rgba(0,0,0,0.05)",
+        }} />
+        </div>
+      )}
+    </div>
+  );
+}
+
 function MainPage() {
   return (
     <div style={{
@@ -169,11 +277,25 @@ function MainPage() {
         </h1>
         <p style={{
           fontFamily: "'DM Sans', sans-serif",
-          color: "#B8A9D9", fontSize: "1rem",
-          opacity: 0.65, letterSpacing: "0.08em",
+          color: "rgba(255,255,255,0.7)", fontSize: "1rem",
+          letterSpacing: "0.08em",
+          marginBottom: "2rem",
         }}>
-          ✨ Your main page content goes here ✨
+          hover over a dot to read a message
         </p>
+        <div style={{
+          display: "flex",
+          flexWrap: "wrap",
+          gap: "clamp(12px, 3vw, 24px)",
+          justifyContent: "center",
+          alignItems: "center",
+          maxWidth: "500px",
+          margin: "0 auto",
+        }}>
+          {messages.map((msg, i) => (
+            <MessageDot key={i} message={msg} index={i} />
+          ))}
+        </div>
       </div>
     </div>
   );
@@ -203,6 +325,11 @@ export default function App() {
           to   { opacity: 1; }
         }
         button:focus-visible { outline: 2px solid #5a7a5a; outline-offset: 3px; }
+        .message-bubble { overflow-y: auto; scrollbar-width: thin; scrollbar-color: #bbb transparent; }
+        .message-bubble::-webkit-scrollbar { width: 6px; -webkit-appearance: none; }
+        .message-bubble::-webkit-scrollbar-track { background: transparent; border-radius: 3px; }
+        .message-bubble::-webkit-scrollbar-thumb { background: #bbb; border-radius: 3px; min-height: 20px; }
+        .message-bubble::-webkit-scrollbar-thumb:hover { background: #999; }
         @media (prefers-reduced-motion: reduce) { * { animation-duration: 0.01ms !important; } }
       `}</style>
 
