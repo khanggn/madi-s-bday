@@ -239,15 +239,26 @@ function LandingPage({ onEnter, isExiting }) {
   );
 }
 
-const BUTTERFLY_POSITIONS = [
-  { top: "12%", left: "8%", rotate: "-10deg" },
-  { top: "28%", left: "20%", rotate: "5deg" },
-  { top: "52%", left: "5%", rotate: "-15deg" },
-  { top: "75%", left: "18%", rotate: "8deg" },
-  { top: "15%", right: "10%", rotate: "12deg" },
-  { top: "42%", right: "7%", rotate: "-8deg" },
-  { top: "68%", right: "15%", rotate: "5deg" },
-];
+function generateButterflyPositions(count) {
+  const positions = [];
+  const rotations = [-15, -10, -5, 5, 8, 12];
+  for (let i = 0; i < count; i++) {
+    const row = Math.floor(i / 2);
+    const totalRows = Math.ceil(count / 2);
+    const top = 10 + (row / Math.max(totalRows - 1, 1)) * 75;
+    const onLeft = i % 2 === 0;
+    const horizontalOffset = 5 + ((i * 7) % 16);
+    const rotate = rotations[i % rotations.length];
+    positions.push({
+      top: `${top}%`,
+      ...(onLeft ? { left: `${horizontalOffset}%` } : { right: `${horizontalOffset}%` }),
+      rotate: `${rotate}deg`,
+    });
+  }
+  return positions;
+}
+
+const BUTTERFLY_POSITIONS = generateButterflyPositions(messages.length);
 
 function MessageButterfly({ message, index, position, side, onOpenChange }) {
   const [open, setOpen] = useState(false);
@@ -308,8 +319,8 @@ function MessageButterfly({ message, index, position, side, onOpenChange }) {
           transition: "transform 0.3s ease, filter 0.3s ease",
           transform: `rotate(${position.rotate}) ${open ? "scale(1.2)" : "scale(1)"}`,
           filter: open
-            ? "drop-shadow(0 4px 12px rgba(0,0,0,0.2)) drop-shadow(0 0 8px rgba(249,199,79,0.6))"
-            : "drop-shadow(0 2px 4px rgba(0,0,0,0.1)) drop-shadow(0 0 6px rgba(249,199,79,0.4))",
+            ? "drop-shadow(0 4px 12px rgba(0,0,0,0.2)) drop-shadow(0 0 8px rgba(255, 204, 84, 0.4))"
+            : "drop-shadow(0 2px 16px rgba(0,0,0,0.1)) drop-shadow(0 0 20px rgba(255, 203, 82, 0.99))",
         }}
       />
 
