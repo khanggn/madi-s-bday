@@ -3,6 +3,7 @@ import bgImage from "./assets/landing-bg.jpg";
 import snoopyGif from "./assets/snoopy-btn.gif";
 import mainBg from "./assets/landing-mainpage.png";
 import birthdayMusic from "./assets/birthday-music.mp3";
+import snoopyCake from "./assets/snoopy-cake.svg";
 import messages from "../../assets/messages.json";
 
 import butterflyBlue from "./assets/butterflies/blue.svg";
@@ -217,8 +218,12 @@ const BUTTERFLY_POSITIONS = [
   { top: "68%", right: "15%", rotate: "5deg" },
 ];
 
-function MessageButterfly({ message, index, position, side }) {
+function MessageButterfly({ message, index, position, side, onOpenChange }) {
   const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    onOpenChange?.(open);
+  }, [open]);
   const [canScroll, setCanScroll] = useState(false);
   const bubbleRef = useRef(null);
   const wrapperRef = useRef(null);
@@ -228,6 +233,13 @@ function MessageButterfly({ message, index, position, side }) {
     if (open && bubbleRef.current) {
       const el = bubbleRef.current;
       setCanScroll(el.scrollHeight > el.clientHeight);
+
+      const handleScroll = () => {
+        const atBottom = el.scrollTop + el.clientHeight >= el.scrollHeight - 5;
+        if (atBottom) setCanScroll(false);
+      };
+      el.addEventListener("scroll", handleScroll);
+      return () => el.removeEventListener("scroll", handleScroll);
     }
   }, [open]);
 
@@ -257,6 +269,8 @@ function MessageButterfly({ message, index, position, side }) {
         alt={message.name}
         onClick={() => setOpen((prev) => !prev)}
         style={{
+          position: "relative",
+          zIndex: 1,
           width: "clamp(60px, 8vw, 90px)",
           height: "auto",
           cursor: "pointer",
@@ -282,6 +296,8 @@ function MessageButterfly({ message, index, position, side }) {
           className="message-bubble"
           onWheel={(e) => e.stopPropagation()}
           style={{
+            position: "relative",
+            zIndex: 2,
             backgroundColor: "#FFFFFF",
             color: "#2a2a2a",
             fontFamily: "'DM Sans', sans-serif",
@@ -307,27 +323,27 @@ function MessageButterfly({ message, index, position, side }) {
             {message.name}
           </p>
           <p style={{ margin: 0 }}>{message.message}</p>
+          {canScroll && (
+            <div style={{
+              position: "sticky",
+              bottom: "0",
+              width: "fit-content",
+              margin: "8px auto 0",
+              display: "flex",
+              alignItems: "center",
+              gap: "4px",
+              backgroundColor: "rgba(90,122,90,0.85)",
+              color: "#fff",
+              fontFamily: "'DM Sans', sans-serif",
+              fontSize: "0.75rem",
+              padding: "3px 10px",
+              borderRadius: "10px",
+            }}>
+              <span>scroll</span>
+              <span style={{ fontSize: "0.85rem" }}>↓</span>
+            </div>
+          )}
         </div>
-        {canScroll && (
-          <div style={{
-            position: "absolute",
-            bottom: "4px",
-            left: "50%",
-            transform: "translateX(-50%)",
-            display: "flex",
-            alignItems: "center",
-            gap: "4px",
-            backgroundColor: "rgba(90,122,90,0.85)",
-            color: "#fff",
-            fontFamily: "'DM Sans', sans-serif",
-            fontSize: "0.75rem",
-            padding: "3px 10px",
-            borderRadius: "10px",
-          }}>
-            <span>scroll</span>
-            <span style={{ fontSize: "0.85rem" }}>↓</span>
-          </div>
-        )}
         </div>
       )}
     </div>
@@ -441,8 +457,160 @@ function SinglePhoto({ item }) {
   );
 }
 
+function Sparkle({ size = 16, top, left, right, bottom, delay = 0, color = "#fff" }) {
+  return (
+    <svg
+      width={size} height={size} viewBox="0 0 24 24"
+      style={{
+        position: "absolute", top, left, right, bottom,
+        opacity: 0,
+        animation: `fadeInLine 0.8s ease forwards ${delay}s`,
+      }}
+    >
+      <path
+        d="M12 0 L13.5 9.5 L24 12 L13.5 14.5 L12 24 L10.5 14.5 L0 12 L10.5 9.5 Z"
+        fill={color}
+      />
+    </svg>
+  );
+}
+
+function Dot({ size = 5, top, left, right, bottom, delay = 0, color = "rgba(255,255,255,0.35)" }) {
+  return (
+    <div style={{
+      position: "absolute", top, left, right, bottom,
+      width: size, height: size, borderRadius: "50%",
+      background: color,
+      opacity: 0,
+      animation: `fadeInLine 0.8s ease forwards ${delay}s`,
+    }} />
+  );
+}
+
+function Polaroid({ src, caption, rotate, top, left, delay = 0, zIndex = 1 }) {
+  return (
+    <div style={{
+      position: "absolute", top, left,
+      transform: `rotate(${rotate}deg)`,
+      background: "#fff",
+      padding: "10px 10px 40px 10px",
+      boxShadow: "0 8px 30px rgba(0,0,0,0.4)",
+      zIndex,
+      opacity: 0,
+      animation: `fadeInLine 1s ease forwards ${delay}s`,
+    }}>
+      <img src={src} alt={caption} style={{
+        width: "clamp(180px, 22vw, 280px)",
+        height: "clamp(220px, 28vw, 340px)",
+        objectFit: "cover",
+        display: "block",
+      }} />
+      <p style={{
+        fontFamily: "'Gamja Flower', cursive",
+        fontSize: "clamp(1rem, 1.8vw, 1.4rem)",
+        color: "#333",
+        textAlign: "center",
+        marginTop: "8px",
+      }}>
+        {caption}
+      </p>
+    </div>
+  );
+}
+
+function Section2() {
+  const ref = useRef(null);
+  const [visible, setVisible] = useState(false);
+  const [uncHovered, setUncHovered] = useState(false);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) setVisible(true); },
+      { threshold: 0.3 }
+    );
+    if (ref.current) observer.observe(ref.current);
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <section ref={ref} style={{
+      width: "100%",
+      minHeight: "100vh",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      background: "#c9a8a0",
+      padding: "4rem 6%",
+      position: "relative",
+      zIndex: 1,
+    }}>
+      <div style={{
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+        width: "100%",
+        maxWidth: "1100px",
+        gap: "3rem",
+      }}>
+        <div style={{ flex: 1 }}>
+          <h2 style={{
+            fontFamily: "'Playfair Display', serif",
+            fontSize: "clamp(2rem, 5vw, 3.5rem)",
+            fontWeight: 400,
+            color: "#fff",
+            lineHeight: 1.2,
+            marginBottom: "0.3rem",
+            opacity: visible ? 1 : 0,
+            transform: visible ? "translateY(0)" : "translateY(20px)",
+            transition: "opacity 0.8s ease, transform 0.8s ease",
+          }}>
+            Have an amazing<br />22nd birthday!{" "}
+            <span
+              onMouseEnter={() => setUncHovered(true)}
+              onMouseLeave={() => setUncHovered(false)}
+              style={{
+                fontStyle: "normal", fontWeight: 700,
+                opacity: uncHovered ? 1 : 0.15,
+                transition: "opacity 0.3s ease",
+                cursor: "default",
+              }}
+            >unc</span>
+          </h2>
+          <p style={{
+            fontFamily: "'Playfair Display', serif",
+            fontSize: "clamp(1.8rem, 4.5vw, 3rem)",
+            fontWeight: 400,
+            color: "#fff",
+            lineHeight: 1.2,
+            marginTop: "1.5rem",
+            opacity: visible ? 1 : 0,
+            transform: visible ? "translateY(0)" : "translateY(20px)",
+            transition: "opacity 0.8s ease 0.4s, transform 0.8s ease 0.4s",
+          }}>
+            Let's take a scroll down<br />memory lane and hear<br />from your friends!
+          </p>
+        </div>
+        <img
+          src={snoopyCake}
+          alt="Snoopy with cake"
+          style={{
+            width: "clamp(180px, 25vw, 320px)",
+            height: "auto",
+            borderRadius: "16px",
+            flexShrink: 0,
+            opacity: visible ? 1 : 0,
+            transform: visible ? "translateX(0)" : "translateX(30px)",
+            transition: "opacity 0.8s ease 0.6s, transform 0.8s ease 0.6s",
+          }}
+        />
+      </div>
+    </section>
+  );
+}
+
 function MainPage() {
-  const [revealCount, setRevealCount] = useState(0);
+  const [revealCount, setRevealCount] = useState(1);
+  const [openIndex, setOpenIndex] = useState(null);
   const sectionRef = useRef(null);
   const containerRef = useRef(null);
   const revealCountRef = useRef(0);
@@ -496,65 +664,114 @@ function MainPage() {
       overflowY: "auto",
       animation: "fadeIn 1s ease both",
     }}>
-      {/* Section 1 — placeholder */}
+      {/* Section 1 — Polaroid landing */}
       <section style={{
         width: "100%",
         minHeight: "100vh",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
-        background: "#618764",
-        padding: "2rem",
+        position: "relative",
+        overflow: "hidden",
       }}>
-        <h2 style={{
-          fontFamily: "'Playfair Display', serif",
-          fontSize: "clamp(2rem, 5vw, 3.5rem)",
-          fontWeight: 700,
-          color: "#fff",
+        <img
+          src={mainBg}
+          alt=""
+          style={{
+            position: "absolute", inset: 0,
+            width: "100%", height: "100%",
+            objectFit: "cover",
+            opacity: 0.8,
+          }}
+        />
+
+        <Polaroid
+          src="/photos/photo1.svg"
+          caption="yayy"
+          rotate={-6}
+          top="18%"
+          left="8%"
+          delay={0.5}
+          zIndex={2}
+        />
+        <Polaroid
+          src="/photos/photo2.svg"
+          caption="ur so cool"
+          rotate={4}
+          top="28%"
+          left="28%"
+          delay={0.9}
+          zIndex={1}
+        />
+
+        {/* Faint circle arc */}
+        <svg
+          width="300" height="300"
+          viewBox="0 0 300 300"
+          style={{
+            position: "absolute", top: "10%", left: "5%",
+            opacity: 0,
+            animation: "fadeInLine 1.2s ease forwards 1.2s",
+          }}
+        >
+          <circle
+            cx="150" cy="150" r="130"
+            fill="none"
+            stroke="rgba(255,255,255,0.06)"
+            strokeWidth="1"
+            strokeDasharray="40 60 80 40"
+          />
+        </svg>
+
+        {/* Right side - Happy Birthday text */}
+        <div style={{
+          position: "absolute",
+          right: "8%",
+          top: "50%",
+          transform: "translateY(-50%)",
+          textAlign: "right",
+          opacity: 0,
+          animation: "fadeInLine 1.2s ease forwards 1.4s",
         }}>
-          Section 1
-        </h2>
-        <p style={{
-          fontFamily: "'DM Sans', sans-serif",
-          color: "rgba(255,255,255,0.7)",
-          fontSize: "1rem",
-          marginTop: "0.5rem",
-        }}>
-          placeholder
-        </p>
+          <h1 style={{
+            fontFamily: "'Playfair Display', serif",
+            fontSize: "clamp(2.5rem, 6vw, 5.5rem)",
+            fontWeight: 400,
+            color: "#FFFFFF",
+            lineHeight: 1.1,
+            textShadow: "0 2px 40px rgba(0,0,0,0.3)",
+          }}>
+            Happy<br />Birthday<br />
+            <span style={{ fontStyle: "italic" }}>Madi!</span>
+          </h1>
+        </div>
+
+        {/* Sparkles - far left edge */}
+        <Sparkle size={28} top="8%" left="3%" delay={1.5} />
+        <Sparkle size={20} top="40%" left="2%" delay={1.8} />
+        <Sparkle size={32} top="70%" left="4%" delay={2.0} />
+        <Sparkle size={18} top="90%" left="8%" delay={2.3} />
+
+        {/* Sparkles - far right edge */}
+        <Sparkle size={30} top="5%" right="3%" delay={1.6} color="#e8c97a" />
+        <Sparkle size={22} top="88%" right="4%" delay={2.1} />
+        <Sparkle size={26} top="92%" right="15%" delay={1.9} />
+
+        {/* Sparkles - top & bottom edges */}
+        <Sparkle size={24} top="3%" left="25%" delay={1.7} color="#e8c97a" />
+        <Sparkle size={18} top="4%" left="45%" delay={2.0} />
+        <Sparkle size={20} top="93%" left="40%" delay={2.2} />
+        <Sparkle size={28} top="92%" left="60%" delay={1.8} color="#e8c97a" />
+
+        {/* Dots */}
+        <Dot size={4} top="25%" left="45%" delay={2.0} />
+        <Dot size={6} top="15%" right="25%" delay={2.2} />
+        <Dot size={3} top="60%" left="50%" delay={2.4} />
+        <Dot size={5} top="85%" left="20%" delay={2.1} />
+        <Dot size={4} top="45%" right="30%" delay={2.3} />
+        <Dot size={3} top="80%" right="25%" delay={2.5} />
+        <Dot size={5} top="12%" left="32%" delay={1.8} />
       </section>
 
-      {/* Section 2 — placeholder */}
-      <section style={{
-        width: "100%",
-        minHeight: "100vh",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
-        background: "#f5ede4",
-        padding: "2rem",
-        position: "relative",
-        zIndex: 1,
-      }}>
-        <h2 style={{
-          fontFamily: "'Playfair Display', serif",
-          fontSize: "clamp(2rem, 5vw, 3.5rem)",
-          fontWeight: 700,
-          color: "#2a2a2a",
-        }}>
-          Section 2
-        </h2>
-        <p style={{
-          fontFamily: "'DM Sans', sans-serif",
-          color: "#5a7a5a",
-          fontSize: "1rem",
-          marginTop: "0.5rem",
-        }}>
-          placeholder
-        </p>
-      </section>
+      {/* Section 2 — Birthday message with Snoopy */}
+      <Section2 />
 
       {/* Section 3 — Butterflies with vines */}
       <section ref={sectionRef} style={{
@@ -628,7 +845,9 @@ function MainPage() {
                 top: pos.top,
                 left: pos.left,
                 right: pos.right,
+                zIndex: openIndex === i ? 9999 : 30,
                 opacity: i < revealCount ? 1 : 0,
+                pointerEvents: i < revealCount ? "auto" : "none",
                 transition: "opacity 0.6s ease",
               }}
             >
@@ -637,6 +856,7 @@ function MainPage() {
                 index={i}
                 position={{ rotate: pos.rotate }}
                 side={pos.left ? "left" : "right"}
+                onOpenChange={(isOpen) => setOpenIndex(isOpen ? i : null)}
               />
             </div>
           );
@@ -668,6 +888,35 @@ function MainPage() {
         {SINGLES.map((item, i) => (
           <SinglePhoto key={i} item={item} />
         ))}
+      </section>
+
+      {/* Section 5 — Placeholder */}
+      <section style={{
+        width: "100%",
+        minHeight: "100vh",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        background: "#f5ede4",
+        padding: "2rem",
+      }}>
+        <h2 style={{
+          fontFamily: "'Playfair Display', serif",
+          fontSize: "clamp(2rem, 5vw, 3.5rem)",
+          fontWeight: 700,
+          color: "#2a2a2a",
+        }}>
+          Section 5
+        </h2>
+        <p style={{
+          fontFamily: "'DM Sans', sans-serif",
+          color: "#5a7a5a",
+          fontSize: "1rem",
+          marginTop: "0.5rem",
+        }}>
+          placeholder
+        </p>
       </section>
     </div>
   );
