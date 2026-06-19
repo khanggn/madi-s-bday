@@ -320,7 +320,7 @@ function MessageButterfly({ message, index, position, side, onOpenChange }) {
           transform: `rotate(${position.rotate}) ${open ? "scale(1.2)" : "scale(1)"}`,
           filter: open
             ? "drop-shadow(0 4px 12px rgba(0,0,0,0.2)) drop-shadow(0 0 8px rgba(255, 204, 84, 0.4))"
-            : "drop-shadow(0 2px 16px rgba(0,0,0,0.1)) drop-shadow(0 0 20px rgba(255, 203, 82, 0.99))",
+            : "drop-shadow(0 2px 16px rgba(0,0,0,0.1)) drop-shadow(0 0 20px rgba(255, 230, 171, 0.99))",
         }}
       />
 
@@ -1247,7 +1247,7 @@ function MainPage() {
             color: "#5a7a5a", fontSize: "1rem",
             letterSpacing: "0.06em",
           }}>
-            click a butterfly to read a message
+            click a glowing butterfly to read a message
           </p>
           {revealCount < messages.length && (
             <p style={{
@@ -1259,6 +1259,33 @@ function MainPage() {
             </p>
           )}
         </div>
+
+        {/* Decorative butterflies in the middle (no glow, non-interactive) */}
+        {[
+          { top: "20%", left: "40%", rotate: "8deg", img: butterflyWhitePurple },
+          { top: "45%", left: "48%", rotate: "-12deg", img: butterflyYellow },
+          { top: "65%", left: "38%", rotate: "5deg", img: butterflyBlue },
+          { top: "35%", left: "55%", rotate: "-6deg", img: butterflyPurple },
+          { top: "80%", left: "52%", rotate: "10deg", img: butterflyOrange },
+        ].map((d, i) => (
+          <img
+            key={`deco-${i}`}
+            src={d.img}
+            alt=""
+            style={{
+              position: "absolute",
+              top: d.top,
+              left: d.left,
+              width: "clamp(40px, 5vw, 60px)",
+              height: "auto",
+              transform: `rotate(${d.rotate})`,
+              opacity: revealCount > 0 ? 0.5 : 0,
+              transition: "opacity 1s ease",
+              pointerEvents: "none",
+              filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.08))",
+            }}
+          />
+        ))}
 
         {/* Butterflies positioned around the vines */}
         {messages.map((msg, i) => {
